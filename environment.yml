@@ -1,0 +1,28 @@
+name: new_ml
+channels:
+  - defaults
+dependencies:
+  - python=3.7
+  - ipympl
+  - numpy
+  - scipy
+  - matplotlib
+  - requests
+  - jupyter
+  - tensorflow
+  - pandas
+  - scikit-learn
+  - tabulate
+  - pickle5
+  - gym
+  - pyvirtualdisplay
+  - pillow
+  - imageio
+  - statsmodels
+  - box2d-py
+  - pyglet
+  - imageio-ffmpeg
+  - seaborn
+  - autopep8
+  - shapely
+prefix: /Users/peterbendel/opt/anaconda3/envs/new_ml

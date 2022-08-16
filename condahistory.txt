@@ -1,0 +1,17 @@
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install python=3.7
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install tensorflow
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install pandas
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install scikit-learn
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install tabulate
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install pickle5
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge gym
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge pyvirtualdisplay
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge pillow
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge imageio
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge statsmodels
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge box2d-py
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge pyglet
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install -c conda-forge imageio-ffmpeg
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install seaborn
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install --name new_ml autopep8 -y
+# cmd: /Users/peterbendel/opt/anaconda3/bin/conda install shapely
