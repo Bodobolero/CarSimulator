@@ -22,6 +22,7 @@ class CanvasModel():
         """
         self.__configLogger(logLevel)
         self._size = size
+        self._imgsize = (size[0]+border*2, size[1]+border*2)
         self._border = border
         self._curveWidth = curveWidth
         self._seed = seed
@@ -56,7 +57,7 @@ class CanvasModel():
         self._angle = math.degrees(math.atan(self._delta_y))
         self._bezierPoints = xys
         self._logger.debug(
-            f'new Curve: {i} bezier control points, orientation {self._angle}, startpoint {xys[0]}, size {self._size}, border {self._border}')
+            f'Canvas: new Curve: {i} bezier control points, orientation {self._angle}, startpoint {xys[0]}, size {self._size}, border {self._border}')
 
     def getCurveStartingPoint(self):
         return self._bezierPoints[0]
@@ -67,8 +68,11 @@ class CanvasModel():
     def getCurveBoundingPoints(self):
         return self._curvePoints
 
+    def getCanvasBoundingPoints(self):
+        return ((self._border, self._border), (self._size[0]+self._border, self._border), (self._size[0]+self._border, self._size[1]+self._border), (self._border, self._size[1]+self._border), (self._border, self._border))
+
     def createImageAndDraw(self):
-        im = Image.new('RGB', self._size, (128, 128, 128))
+        im = Image.new('RGB', self._imgsize, (128, 128, 128))
         imageDraw = ImageDraw.Draw(im)
         imageDraw.rectangle((self._border, self._border, self._size[0]+self._border, self._size[1]+self._border), fill=(
             255, 255, 255), width=1, outline=(255, 255, 255))

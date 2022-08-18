@@ -26,7 +26,7 @@ class CarModel():
         self._position = (0.0,0.0)
         self._rotation = 0.0 # pointing from top to bottom (south)
         self._scale = 1.0
-        self._logger.debug(f'new Car with position {self._position}, orientation {self._rotation}, scale {self._scale}')
+        self._logger.debug(f'Car: new Car with position {self._position}, orientation {self._rotation}, scale {self._scale}')
        
         return
 
@@ -35,7 +35,7 @@ class CarModel():
         pos: tuple of x, y coordinates (top left corner is (0,0) x coordinates go to the right, y to the bottom)
         """
         self._position=pos
-        self._logger.debug(f'setPosition {pos}: new position is {self._position}, orientation is {self._rotation}')
+        self._logger.debug(f'Car: setPosition {pos}: new position is {self._position}, orientation is {self._rotation}')
        
 
     def setOrientation(self, angle) -> None:
@@ -45,7 +45,7 @@ class CarModel():
         negative value counter-clockwise
         """
         self._rotation = angle
-        self._logger.debug(f'setOrientation {angle}: new position is {self._position}, orientation is {self._rotation}')
+        self._logger.debug(f'Car: setOrientation {angle}: new position is {self._position}, orientation is {self._rotation}')
        
 
     def setScale(self, scale) -> None:
@@ -77,12 +77,12 @@ class CarModel():
     def moveForward(self,x) -> None:
         delta = self.rotatePoint((x,0.0))
         self._position = (self._position[0]+delta[0], self._position[1]+delta[1])
-        self._logger.debug(f'moveForward {x}: new position is {self._position}, orientation is {self._rotation}')
+        self._logger.debug(f'Car: moveForward {x}: new position is {self._position}, orientation is {self._rotation}')
         return
     
     def rotate(self, x) -> None:
         self._rotation = self._rotation + x
-        self._logger.debug(f'rotate {x}: new position is {self._position}, orientation is {self._rotation}')
+        self._logger.debug(f'Car: rotate {x}: new position is {self._position}, orientation is {self._rotation}')
         return
 
     def computeSensorValues(self, curve):
@@ -104,6 +104,18 @@ class CarModel():
             sensorvalue = 30 + 870 * areasize / 25.0
             result.append(sensorvalue)
         return result
+
+    def isAtLeastOneCarSensorWithinBounds(self, bounds):
+        canvas = Polygon([list(point) for point in bounds])
+        for i in range(3):
+            currentsensorbounds = self.rotateAndTranslateAndScalePoints(self.sensors[i])
+            sensorpoly = Polygon([list(point) for point in currentsensorbounds])
+            x = canvas.intersection(sensorpoly)
+            areasize = x.area
+            if (areasize > 0.0):
+                return True
+        return False
+
 
     def draw(self, imageDraw) -> None:
         imageDraw.polygon(self.rotateAndTranslateAndScalePoints(self.bodybox), fill=None, outline=(0,0,0), width=2)
