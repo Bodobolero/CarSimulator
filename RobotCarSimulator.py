@@ -13,6 +13,7 @@ import Canvas
 import RobotCarSimulator
 import Heuristic
 import pprint
+import sys
 
 
 class SimulatorControl():
@@ -137,14 +138,17 @@ class SimulatorControl():
         return
 
     if __name__ == '__main__':
+        seed = 5
+        if (len(sys.argv) > 1):
+            seed = int(sys.argv[1])
         car = Car.CarModel(logLevel=logging.DEBUG)
-        canvas = Canvas.CanvasModel(seed=5, logLevel=logging.DEBUG)
+        canvas = Canvas.CanvasModel(seed=seed, logLevel=logging.DEBUG)
         sim = RobotCarSimulator.SimulatorControl(
             canvas, car, createGif=True, logLevel=logging.DEBUG)
         heuristic = Heuristic.HeuristicLineTracker(sim)
         heuristic.run()
-        sim.saveImage('heuristic.gif')
-        with open('heuristic.txt', 'w') as f:
+        sim.saveImage('heuristic_seed_{}.gif'.format(seed))
+        with open('heuristic_seed_{}.txt'.format(seed), 'w') as f:
             f.write("actions:\n")
             f.write(pprint.pformat(sim._actionLog))
             f.write("\n\npositions:\n")
