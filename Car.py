@@ -1,5 +1,6 @@
 import logging, math
 from PIL import Image, ImageDraw
+from shapely.geometry import Polygon
 
 
 class CarModel():
@@ -25,7 +26,27 @@ class CarModel():
         self._position = (0.0,0.0)
         self._rotation = 0.0 # pointing from top to bottom (south)
         self._scale = 1.0
+        self._logger.debug(f'new Car with position {self._position}, orientation {self._rotation}, scale {self._scale}')
+       
         return
+
+    def setPosition(self, pos) -> None:
+        """ set current position of car,
+        pos: tuple of x, y coordinates (top left corner is (0,0) x coordinates go to the right, y to the bottom)
+        """
+        self._position=pos
+        self._logger.debug(f'setPosition {pos}: new position is {self._position}, orientation is {self._rotation}')
+       
+
+    def setOrientation(self, angle) -> None:
+        """ angle in degree (not radians),
+        0 is pointing to the right
+        positive value clockwise
+        negative value counter-clockwise
+        """
+        self._rotation = angle
+        self._logger.debug(f'setOrientation {angle}: new position is {self._position}, orientation is {self._rotation}')
+       
 
     def setScale(self, scale) -> None:
         """ By default the simulator use 1 mm = 1 pixel.
@@ -64,6 +85,26 @@ class CarModel():
         self._logger.debug(f'rotate {x}: new position is {self._position}, orientation is {self._rotation}')
         return
 
+    def computeSensorValues(self, curve):
+        """ compute the size of the intersection between the sensor polygons and the curve polygon 
+        and compute the sensor values
+        
+        curve: be a list of points that form a polygon e.g. [(0,0),(5,5),(0,0)]
+        
+        return sensor values between 30 (not on line) and 900 (fully on line)
+        (in real life the sensor value depends on lighting conditions and varies between 0 and 1024)
+        """
+        result = []
+        curve = Polygon([list(point) for point in curve])
+        for i in range(3):
+            currentsensorbounds = self.rotateAndTranslateAndScalePoints(self.sensors[i])
+            sensorpoly = Polygon([list(point) for point in currentsensorbounds])
+            x = curve.intersection(sensorpoly)
+            areasize = x.area
+            sensorvalue = 30 + 870 * areasize / 25.0
+            result.append(sensorvalue)
+        return result
+
     def draw(self, imageDraw) -> None:
         imageDraw.polygon(self.rotateAndTranslateAndScalePoints(self.bodybox), fill=None, outline=(0,0,0), width=2)
         for w in self.wheels:
@@ -71,6 +112,7 @@ class CarModel():
         for s in self.sensors:
             imageDraw.polygon(self.rotateAndTranslateAndScalePoints(s), fill=(255,0,0), outline=(255,0,0), width=1)
         return
+
 
     def __configLogger(self, logLevel):
         """ by default log all INFO level and above messages to stderr with timestamp, module and threadname, level and message
@@ -84,6 +126,8 @@ class CarModel():
         console_handler.setFormatter(console_formatter)
         self._logger.addHandler(console_handler)
         return
+
+    
 
     
     
