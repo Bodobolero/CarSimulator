@@ -14,6 +14,9 @@ import RobotCarSimulator
 import Heuristic
 import pprint
 import sys
+from PIL import ImageFont
+
+genevafont = ImageFont.truetype("Geneva.ttf", 30)
 
 
 class SimulatorControl():
@@ -28,6 +31,7 @@ class SimulatorControl():
         self.__configLogger(logLevel)
         self._canvas = canvas
         self._car = car
+        self._time = 0.0
         self._canvasPoints = self._canvas.getCanvasBoundingPoints()
         self._curvePoints = self._canvas.getCurveBoundingPoints()
         car.setPosition(canvas.getCurveStartingPoint())
@@ -38,6 +42,8 @@ class SimulatorControl():
         self._images = []
         self._durations = []
         self._createGif = createGif
+        self._sensorValues = []
+        self.getLineTrackingSensorValues()
         self.logCar("init", None, 100)
         return
 
@@ -52,9 +58,13 @@ class SimulatorControl():
 
     def addImageWithDuration(self, duration):
         if (self._createGif):
-            self._durations.append(100)
+            self._durations.append(duration)
+            self._time += duration/1000
             (img, draw) = self._canvas.createImageAndDraw()
             self._car.draw(draw)
+            text = 'Step: {:3d} Time: {:.2f} s - Sensors: L {:.0f} M {:.0f} R {:.0f}'.format(len(self._images), self._time,
+                                                                                             self._sensorValues[0], self._sensorValues[1], self._sensorValues[2])
+            draw.text((400, 50), text, font=genevafont)
             self._images.append(img)
             self._durations.append(duration)
         return
@@ -69,6 +79,7 @@ class SimulatorControl():
         # TODO
         listOfInts = self._car.computeSensorValues(self._curvePoints)
         self._logger.info(f'Infrared sensor values (L/M/R): {listOfInts}')
+        self._sensorValues = listOfInts
         return listOfInts
 
     def driveForward(self, speed=100, duration=1000):
