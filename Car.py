@@ -116,6 +116,16 @@ class CarModel():
                 return True
         return False
 
+    def followsLine(self, bounds):
+        curve = Polygon([list(point) for point in bounds])
+        x = self._position[0]
+        y = self._position[1]
+        d = 20  # we say we are following the line if our center is at max 2 cm next to the line
+        center = Polygon([[x-d, y-d],[x+d, y-d],[x+d, y+d],[x-d, y+d],[x-d, y-d]])
+        intersect = curve.intersection(center)
+        if (intersect.area > 0.0):
+             return True
+        return False
 
     def draw(self, imageDraw) -> None:
         imageDraw.polygon(self.rotateAndTranslateAndScalePoints(self.bodybox), fill=None, outline=(0,0,0), width=2)

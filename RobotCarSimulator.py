@@ -15,13 +15,14 @@ import Heuristic
 import pprint
 import sys
 from PIL import ImageFont
+from rewardFunctions import simpleReward
 
 genevafont = ImageFont.truetype("Geneva.ttf", 30)
 
 
 class SimulatorControl():
 
-    def __init__(self, canvas, car, createGif=True, logLevel=logging.INFO) -> None:
+    def __init__(self, canvas, car, createGif=True, rewardFunction=simpleReward, logLevel=logging.INFO) -> None:
         """ By default the simulator will log to stderr with log level INFO.
         The module uses log levels INFO for major events and DEBUG for debugging.
 
@@ -31,7 +32,11 @@ class SimulatorControl():
         self.__configLogger(logLevel)
         self._canvas = canvas
         self._car = car
+        self._reward = 0.0
+        self._rewardFunction = rewardFunction
         self._time = 0.0
+        self._isTerminated = False
+        self._followsLine = True
         self._canvasPoints = self._canvas.getCanvasBoundingPoints()
         self._curvePoints = self._canvas.getCurveBoundingPoints()
         car.setPosition(canvas.getCurveStartingPoint())
@@ -43,44 +48,51 @@ class SimulatorControl():
         self._durations = []
         self._createGif = createGif
         self._sensorValues = []
-        self.getLineTrackingSensorValues()
         self.logCar("init", None, 100)
         return
 
     def logCar(self, actionname, actionparms, duration):
+        self._updateLineTrackingSensorValues()
+        self._followsLine = self._car.followsLine(self._curvePoints)
+        self._isTerminated = not self._car.isAtLeastOneCarSensorWithinBounds(
+            self._canvasPoints)
         self._actionLog.append((actionname, actionparms, duration))
         self._carPositions.append(self._car._position)
         self._carOrientations.append(self._car._rotation)
+        self._time += duration/1000
+        self._reward = self._rewardFunction(
+            self._time, self._sensorValues, self._car._position, self._car._rotation, self._followsLine, self._isTerminated)
         self.addImageWithDuration(duration)
         self._logger.debug(
-            f'Sim: {actionname}: {actionparms}, duration {duration}, new pos: {self._car._position}, new angle: {self._car._rotation}')
+            f'Sim: {actionname}: {actionparms}, duration {duration}, new pos: {self._car._position}, new angle: {self._car._rotation}, reward: {self._reward}')
         return
 
     def addImageWithDuration(self, duration):
         if (self._createGif):
             self._durations.append(duration)
-            self._time += duration/1000
             (img, draw) = self._canvas.createImageAndDraw()
             self._car.draw(draw)
-            text = 'Step: {:3d} Time: {:.2f} s - Sensors: L {:.0f} M {:.0f} R {:.0f}'.format(len(self._images), self._time,
-                                                                                             self._sensorValues[0], self._sensorValues[1], self._sensorValues[2])
+            text = 'Step: {:3d} Time: {:.2f} s - Sensors: L {:.0f} M {:.0f} R {:.0f} - Reward: {:.0f}'.format(len(self._images), self._time,
+                                                                                                              self._sensorValues[0], self._sensorValues[1], self._sensorValues[2], self._reward)
             draw.text((400, 50), text, font=genevafont)
             self._images.append(img)
             self._durations.append(duration)
         return
 
-    def getLineTrackingSensorValues(self):
+    def _updateLineTrackingSensorValues(self):
         """ Retrieve the Infrared sensor values of the three infrared sensors on the bottom of the car used for line tracking.
         The list returned contains (in driving direction) the values
         [leftValue, middleValue, rightValue]
         The values vary approximately between 0 and 1000 where lower value indicates lighter ground and higher values indicates
         darker ground
         """
-        # TODO
-        listOfInts = self._car.computeSensorValues(self._curvePoints)
-        self._logger.info(f'Infrared sensor values (L/M/R): {listOfInts}')
-        self._sensorValues = listOfInts
-        return listOfInts
+        listOfFloats = self._car.computeSensorValues(self._curvePoints)
+        self._logger.info(f'Infrared sensor values (L/M/R): {listOfFloats}')
+        self._sensorValues = listOfFloats
+        return listOfFloats
+
+    def getLineTrackingSensorValues(self):
+        return self._sensorValues
 
     def driveForward(self, speed=100, duration=1000):
         """ Synchronous command to drive forward.
@@ -123,7 +135,15 @@ class SimulatorControl():
         if all sensors are outside of the canvas we stop the simulation
         also if we have reached the right end of the canvas
         """
-        return not self._car.isAtLeastOneCarSensorWithinBounds(self._canvasPoints)
+        return self._isTerminated
+
+    def carFollowsLine(self):
+        """True if the center of the car is approximately on the line
+        """
+        return self._followsLine
+
+    def getReward(self):
+        return self._reward
 
     def saveImage(self, file='carsimulation.gif'):
         """
