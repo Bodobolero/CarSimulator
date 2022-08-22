@@ -61,7 +61,7 @@ class SimulatorControl():
         self._carOrientations.append(self._car._rotation)
         self._time += duration/1000
         self._reward = self._rewardFunction(
-            self._time, self._sensorValues, self._car._position, self._car._rotation, self._followsLine, self._isTerminated)
+            self._sensorValues, self._car._position, self._car._rotation, self._followsLine, self._isTerminated)
         self.addImageWithDuration(duration)
         self._logger.debug(
             f'Sim: {actionname}: {actionparms}, duration {duration}, new pos: {self._car._position}, new angle: {self._car._rotation}, reward: {self._reward}')
@@ -87,12 +87,15 @@ class SimulatorControl():
         darker ground
         """
         listOfFloats = self._car.computeSensorValues(self._curvePoints)
-        self._logger.info(f'Infrared sensor values (L/M/R): {listOfFloats}')
+        self._logger.debug(f'Infrared sensor values (L/M/R): {listOfFloats}')
         self._sensorValues = listOfFloats
         return listOfFloats
 
     def getLineTrackingSensorValues(self):
         return self._sensorValues
+
+    def getDuration(self):
+        return self._time
 
     def driveForward(self, speed=100, duration=1000):
         """ Synchronous command to drive forward.
