@@ -34,6 +34,7 @@ class SimulatorControl():
         self._car = car
         self._reward = 0.0
         self._previousRewardPositions = set()
+        self._xmax = 0
         self._rewardFunction = rewardFunction
         self._time = 0.0
         self._isTerminated = False
@@ -63,7 +64,11 @@ class SimulatorControl():
         self._time += duration/1000
         position = (round(self._car._position[0], 2), round(self._car._position[1], 2), round(self._car._rotation, 2),
                     self._followsLine, self._isTerminated)
-        if (position in self._previousRewardPositions):
+        newx = self._car._position[0]
+        if (newx > self._xmax):
+            self._xmax = newx
+        # no reward for going to the left (all curves go the right) or for reaching same position as before
+        if (position in self._previousRewardPositions or newx < self._xmax):
             self._reward = 0.0
         else:
             self._previousRewardPositions.add(position)

@@ -20,7 +20,7 @@ def simpleReward(sensors, position, orientation, carFollowsLine, isTerminated):
     carFollowsLine: True if the center of the car is approximately on the line
     isTerminated: True if all sensors are outside of the canvas
     """
-    if (isTerminated and not carFollowsLine):
+    if (isTerminated and (not carFollowsLine or position[0] < 500)):
         return MAX_STEPS * -1.0 * SENSOR_MIDDLE_REWARD
 
     if (isTerminated and carFollowsLine):
@@ -28,13 +28,13 @@ def simpleReward(sensors, position, orientation, carFollowsLine, isTerminated):
 
     if (carFollowsLine):
         if (sensors[1] > SENSOR_LINE_THRESHOLD):
-            return SENSOR_MIDDLE_REWARD
+            return SENSOR_MIDDLE_REWARD * (1 + position[0]/500)
         if ((sensors[0] > SENSOR_LINE_THRESHOLD) or (sensors[2] > SENSOR_LINE_THRESHOLD)):
-            return SENSOR_SIDE_REWARD
+            return SENSOR_SIDE_REWARD * (1 + position[0]/500)
         return ON_LINE_BUT_NO_SENSOR
     else:
         if (sensors[1] > SENSOR_LINE_THRESHOLD):
-            return SENSOR_MIDDLE_REWARD / 2.0
+            return SENSOR_MIDDLE_REWARD / 2.0 * (1 + position[0]/500)
         if ((sensors[0] > SENSOR_LINE_THRESHOLD) or (sensors[2] > SENSOR_LINE_THRESHOLD)):
-            return SENSOR_SIDE_REWARD / 2.0
+            return SENSOR_SIDE_REWARD / 2.0 * (1 + position[0]/500)
         return LOST_LINE
