@@ -33,6 +33,7 @@ class SimulatorControl():
         self._canvas = canvas
         self._car = car
         self._reward = 0.0
+        self._previousRewardPositions = set()
         self._rewardFunction = rewardFunction
         self._time = 0.0
         self._isTerminated = False
@@ -60,8 +61,14 @@ class SimulatorControl():
         self._carPositions.append(self._car._position)
         self._carOrientations.append(self._car._rotation)
         self._time += duration/1000
-        self._reward = self._rewardFunction(
-            self._sensorValues, self._car._position, self._car._rotation, self._followsLine, self._isTerminated)
+        position = (round(self._car._position[0], 2), round(self._car._position[1], 2), round(self._car._rotation, 2),
+                    self._followsLine, self._isTerminated)
+        if (position in self._previousRewardPositions):
+            self._reward = 0.0
+        else:
+            self._previousRewardPositions.add(position)
+            self._reward = self._rewardFunction(
+                self._sensorValues, self._car._position, self._car._rotation, self._followsLine, self._isTerminated)
         self.addImageWithDuration(duration)
         self._logger.debug(
             f'Sim: {actionname}: {actionparms}, duration {duration}, new pos: {self._car._position}, new angle: {self._car._rotation}, reward: {self._reward}')
