@@ -25,4 +25,5 @@ dependencies:
   - seaborn
   - autopep8
   - shapely
+  - h5py==2.10.0
 prefix: /Users/peterbendel/opt/anaconda3/envs/new_ml

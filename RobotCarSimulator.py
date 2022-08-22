@@ -171,6 +171,10 @@ class SimulatorControl():
         self._logger.addHandler(console_handler)
         return
 
+    def runModelAndSaveVideo(self, modelfile, videofile, seed=5, logLevel=logging.INFO):
+        # TODO
+        return
+
     if __name__ == '__main__':
         seed = 5
         if (len(sys.argv) > 1):
