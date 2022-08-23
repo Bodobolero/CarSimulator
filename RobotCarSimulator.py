@@ -16,18 +16,20 @@ import pprint
 import sys
 from PIL import ImageFont
 from rewardFunctions import simpleReward
+from collections import deque
 
 genevafont = ImageFont.truetype("Geneva.ttf", 30)
 
 
 class SimulatorControl():
 
-    def __init__(self, canvas, car, createGif=True, rewardFunction=simpleReward, logLevel=logging.INFO) -> None:
+    def __init__(self, canvas, car, createGif=True, rewardFunction=simpleReward, logLevel=logging.INFO, stephistory=2) -> None:
         """ By default the simulator will log to stderr with log level INFO.
         The module uses log levels INFO for major events and DEBUG for debugging.
 
         If you want to create an animated gif of this experiment set createGif to True.
         To save resources if gif is not needed set createGif=False
+        stephistory: keeps sensorvalues for stephistory generations in memory
         """
         self.__configLogger(logLevel)
         self._canvas = canvas
@@ -50,9 +52,10 @@ class SimulatorControl():
         self._durations = []
         self._createGif = createGif
         self._sensorValues = []
-        self._previousSensorValues = []
+        self._previousSensorValues = deque(maxlen=(stephistory*3))
         self.logCar("init", None, 100)
-        self._previousSensorValues = self._sensorValues
+        for i in range(stephistory):
+            self._previousSensorValues.extend(self._sensorValues)
         return
 
     def logCar(self, actionname, actionparms, duration):
@@ -102,7 +105,7 @@ class SimulatorControl():
         """
         listOfFloats = self._car.computeSensorValues(self._curvePoints)
         self._logger.debug(f'Infrared sensor values (L/M/R): {listOfFloats}')
-        self._previousSensorValues = self._sensorValues
+        self._previousSensorValues.extend(self._sensorValues)
         self._sensorValues = listOfFloats
         return listOfFloats
 
