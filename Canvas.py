@@ -30,6 +30,14 @@ class CanvasModel():
         return
 
     def initCurve(self):
+        """
+        initialize a line from left to right that follows bezier curves - 
+        the curves depend on the random seed used to initialize the canvas.
+
+        TODO: for the following seed values we have a problem
+        for seed value 6 we get a division by zero
+        for seed value 7 the car's sensors are not correctly placed on the line
+        """
         random.seed(self._seed)
         # two of the 1-6 points are already used for the start and end
         i = random.randint(1, 6)

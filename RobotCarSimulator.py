@@ -44,6 +44,8 @@ class SimulatorControl():
         self._canvasPoints = self._canvas.getCanvasBoundingPoints()
         self._curvePoints = self._canvas.getCurveBoundingPoints()
         car.setPosition(canvas.getCurveStartingPoint())
+        # TODO: this orientation does not guarantee to place the sensors on the line
+        # for example for curve with seed 7 all sensors are on the white canvas
         car.setOrientation(canvas.getCurveStartingOrientation())
         self._carPositions = []
         self._carOrientations = []
