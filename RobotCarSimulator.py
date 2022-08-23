@@ -50,7 +50,9 @@ class SimulatorControl():
         self._durations = []
         self._createGif = createGif
         self._sensorValues = []
+        self._previousSensorValues = []
         self.logCar("init", None, 100)
+        self._previousSensorValues = self._sensorValues
         return
 
     def logCar(self, actionname, actionparms, duration):
@@ -100,11 +102,15 @@ class SimulatorControl():
         """
         listOfFloats = self._car.computeSensorValues(self._curvePoints)
         self._logger.debug(f'Infrared sensor values (L/M/R): {listOfFloats}')
+        self._previousSensorValues = self._sensorValues
         self._sensorValues = listOfFloats
         return listOfFloats
 
     def getLineTrackingSensorValues(self):
         return self._sensorValues
+
+    def getPreviousLineTrackingSensorValues(self):
+        return self._previousSensorValues
 
     def getDuration(self):
         return self._time
