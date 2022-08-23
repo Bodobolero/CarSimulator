@@ -208,8 +208,8 @@ class SimulatorControl():
             canvas, car, createGif=True, logLevel=logging.DEBUG)
         heuristic = Heuristic.HeuristicLineTracker(sim)
         heuristic.run()
-        sim.saveImage('heuristic_seed_{}.gif'.format(seed))
-        with open('heuristic_seed_{}.txt'.format(seed), 'w') as f:
+        sim.saveImage('images/heuristic_seed_{}.gif'.format(seed))
+        with open('data/heuristic_seed_{}.txt'.format(seed), 'w') as f:
             f.write("actions:\n")
             f.write(pprint.pformat(sim._actionLog))
             f.write("\n\npositions:\n")
