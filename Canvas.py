@@ -33,10 +33,6 @@ class CanvasModel():
         """
         initialize a line from left to right that follows bezier curves - 
         the curves depend on the random seed used to initialize the canvas.
-
-        TODO: for the following seed values we have a problem
-        for seed value 6 we get a division by zero
-        for seed value 7 the car's sensors are not correctly placed on the line
         """
         random.seed(self._seed)
         # two of the 1-6 points are already used for the start and end
@@ -58,10 +54,14 @@ class CanvasModel():
         newpoints = line.buffer(7.5, cap_style=3, join_style=1)
         self._curvePoints = list(newpoints.exterior.coords)
 
-        # Now compute the car start position.
-        # a bezier curve is tangential to the first line given by the points, so we can compute
-        # the angle from the line coordinates
-        self._delta_y = (xys[1][1]-xys[0][1])/(xys[1][0]-xys[0][0])
+        # Now compute the car start position and orientation.
+        # Note that the middle infrared sensor (which is 100 mm from the center of the car)
+        # should be on top of the curve.
+
+        # First we compute a point on the line with a distance of 100 mm from the start of the line
+        sensorpos = line.interpolate(100)
+        # then we compute the orientation angle (degrees) of that point relative to the start point
+        self._delta_y = (sensorpos.y-xys[0][1])/(sensorpos.x-xys[0][0])
         self._angle = math.degrees(math.atan(self._delta_y))
         self._bezierPoints = xys
         self._logger.debug(
