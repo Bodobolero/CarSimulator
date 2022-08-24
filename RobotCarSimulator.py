@@ -7,6 +7,7 @@ module that provides a simulator API for the smart Robot car
 Copyright 2021 Peter Bendel, see LICENSE file
 """
 
+from inspect import modulesbyfile
 import logging
 import Car
 import Canvas
@@ -17,6 +18,8 @@ import sys
 from PIL import ImageFont
 from rewardFunctions import simpleReward
 from collections import deque
+import tensorflow as tf
+import numpy as np
 
 genevafont = ImageFont.truetype("Geneva.ttf", 30)
 
@@ -192,10 +195,6 @@ class SimulatorControl():
         self._logger.addHandler(console_handler)
         return
 
-    def runModelAndSaveVideo(self, modelfile, videofile, seed=5, logLevel=logging.INFO):
-        # TODO
-        return
-
     if __name__ == '__main__':
         seed = 5
         if (len(sys.argv) > 1):
@@ -215,3 +214,36 @@ class SimulatorControl():
             f.write("\n\norientations:\n")
             f.write(pprint.pformat(sim._carOrientations))
         exit(0)
+
+
+def runModelAndSaveVideo(modelfile, videodirectory='./images', logdirectory='./data', seed=5, logLevel=logging.INFO):
+    videofilename = videodirectory + '/model_seed_{}.gif'.format(seed)
+    logfilename = logdirectory + '/model_seed_{}.txt'.format(seed)
+    model = tf.keras.models.load_model(modelfile)
+    car = Car.CarModel(logLevel=logLevel)
+    canvas = Canvas.CanvasModel(seed=seed, logLevel=logLevel)
+    sim = RobotCarSimulator.SimulatorControl(
+        canvas, car, createGif=True, logLevel=logLevel)
+
+    while not sim.isTerminated() and sim.getDuration() < 20.0:
+        state_qn = np.expand_dims(np.array(list(sim.getPreviousLineTrackingSensorValues(
+        )) + sim.getLineTrackingSensorValues()), axis=0)
+        q_values = model(state_qn)
+        action = np.argmax(q_values.numpy()[0])
+        if (action == 0):
+            sim.driveForward(100, 150)
+        elif(action == 1):
+            sim.turnLeft(100, 50)
+        elif(action == 2):
+            sim.turnRight(100, 50)
+
+    sim.saveImage('images/model_seed_{}.gif'.format(seed))
+    with open('data/model_seed_{}.txt'.format(seed), 'w') as f:
+        f.write("actions:\n")
+        f.write(pprint.pformat(sim._actionLog))
+        f.write("\n\npositions:\n")
+        f.write(pprint.pformat(sim._carPositions))
+        f.write("\n\norientations:\n")
+        f.write(pprint.pformat(sim._carOrientations))
+
+    return
