@@ -1,7 +1,7 @@
 # CarSimulator
 Car simulator to try reinforcement learning of line tracking with Arduino Robo Car
 
-<img src="media4readme/robocar.jpeg" alt="Picture of Arduino robot car" title="Picture of Arduino robot car" height="300"/>
+<img src="media4readme/robocar.jpeg" alt="Picture of Arduino robot car" title="Picture of Arduino robot car" />
 
 
 ## Lessons learned from playing with reinforcement models
@@ -50,11 +50,11 @@ for more details see https://github.com/Bodobolero/CarSimulator/blob/main/Measur
 
 My initial reward function rewarded the car when a sensor was on the line after a step. The most reliable way to achieve that was by staying in the same position but just repeatedly turn left and right with the nose without moving:
 
-<img src="media4readme/stuck_model_seed_11.gif" alt="Bad reward function" title="Bad reward function" height="300"/>
+<img src="media4readme/stuck_model_seed_11.gif" alt="Bad reward function" title="Bad reward function" />
 
 After I modified the reward function to not provide any rewards on a position that was already reached previously the model learned that when it lost the line, the most reliable way to go back to the line was to always turn left until it reached the line again - however this caused the model to turn halfway and run back to the starting point:
 
-<img src="media4readme/uturn.gif" alt="Bad reward function 2" title="Bad reward function 2" height="300"/>
+<img src="media4readme/uturn.gif" alt="Bad reward function 2" title="Bad reward function 2"/>
 
 I tried different things like
 - keeping a history of prior positions (and not reward for prior positions)
@@ -67,7 +67,7 @@ However by only tuning the reward function I could not achieve the goal.
 I generated an animated gif where each model step was a frame. By stepping through the .gif (with Macos Preview) I could exactly understand where the model failed and what the problem was, as in this example where all sensors where off the line
 and even a human being could not decide what to do now (turn left or right) without additional context:
 
-<img src="media4readme/all_sensors_off_curve.png" alt="What to do now ?" title="What to do now ?" height="300"/>
+<img src="media4readme/all_sensors_off_curve.png" alt="What to do now ?" title="What to do now ?" />
 
 
 ### Hyperparameter tuning and when to stop learning
@@ -93,7 +93,7 @@ E_MIN = 0.01          # minimum ε value for ε-greedy policy
 
 I made the decision when to stop the learning loop based on a visual representation of the total reward history
 
-<img src="media4readme/totalrewards.png" alt="total reward history and floating average" title="total reward history and floating average" height="300"/>
+<img src="media4readme/totalrewards.png" alt="total reward history and floating average" title="total reward history and floating average"/>
 
 
 for details see https://github.com/Bodobolero/CarSimulator/blob/main/LearnModel.ipynb
@@ -109,7 +109,7 @@ So garbage in -> garbage out. If you do not provide enough state the model can n
 
 After adding a sensor history of two time steps to the state tensor the model suddenly worked well:
 
-<img src="media4readme/final_model_seed_5.gif" alt="Model working with two additional time steps in state" title="Model working with two additional time steps in state" height="300"/>
+<img src="media4readme/final_model_seed_5.gif" alt="Model working with two additional time steps in state" title="Model working with two additional time steps in state"/>
 
 ### Model optimized in simulation may still fail in real ife
 
@@ -131,7 +131,7 @@ In real life
 Finally I got it working by adding a (programmatic, not learned) calibration step that adjusts the sensor values to the
 current lighting conditions and feeds the "corrected" sensor values to the DQN model:
 
-<img src="media4readme/realcarlinetracking.gif" alt="the real car in action" title="the real car in action" height="300"/>
+<img src="media4readme/realcarlinetracking.gif" alt="the real car in action" title="the real car in action"/>
 
 ### Conclusions: 
 
